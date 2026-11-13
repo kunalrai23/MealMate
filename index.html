@@ -1,0 +1,554 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Foodie | Order Your Favourite Food</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
+:root{--red:#e23744;--dark:#242424;--gray:#777;--light:#fff4f4}
+body{color:var(--dark);background:#fff}
+button{cursor:pointer;border:0}
+
+header{
+height:75px;padding:0 7%;display:flex;align-items:center;
+justify-content:space-between;background:#fff;
+box-shadow:0 2px 12px #0000000c;position:sticky;top:0;z-index:20
+}
+.logo{font-size:30px;font-weight:800;color:var(--red)}
+nav{display:flex;gap:27px}
+nav a{text-decoration:none;color:#333;font-size:15px}
+nav a:hover{color:var(--red)}
+.header-right{display:flex;align-items:center;gap:14px}
+.login-btn,.signup-btn{padding:11px 18px;border-radius:7px;font-weight:600}
+.login-btn{background:#fff;border:1px solid #ddd}
+.signup-btn{background:var(--red);color:#fff}
+.cart-button{background:var(--red);color:white;padding:11px 17px;border-radius:8px;font-size:15px;font-weight:bold}
+.cart-count{background:white;color:var(--red);border-radius:50%;min-width:20px;height:20px;display:inline-grid;place-items:center;font-size:11px;margin-left:5px}
+
+.hero{
+min-height:430px;padding:65px 10%;display:flex;align-items:center;
+color:#fff;background:linear-gradient(90deg,#000b,#0002),
+url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1600') center/cover
+}
+.hero-content{max-width:600px}
+.hero h1{font-size:clamp(40px,5vw,62px);line-height:1.13;margin-bottom:18px}
+.hero h1 span{color:#ff6975}
+.hero p{font-size:18px;color:#eee;line-height:1.7;margin-bottom:25px}
+.hero-btn{padding:14px 25px;background:var(--red);color:white;border-radius:7px;font-size:15px;font-weight:bold}
+
+section{padding:48px 7%}
+.category-section{scroll-margin-top:90px}
+.category-heading{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}
+.category-heading h2{font-size:27px}
+.category-heading span{font-size:13px;color:var(--red);font-weight:bold}
+.food-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:19px}
+.food-card{border:1px solid #eee;border-radius:12px;overflow:hidden;transition:.25s;background:white}
+.food-card:hover{transform:translateY(-5px);box-shadow:0 8px 25px #00000012}
+.food-card img{width:100%;height:150px;object-fit:cover;background:#fff0f0;display:block}
+.food-info{padding:13px}
+.food-info h3{font-size:16px;margin-bottom:7px}
+.food-info p{font-size:13px;color:var(--gray);min-height:31px;line-height:1.4}
+.food-bottom{display:flex;align-items:center;justify-content:space-between;margin-top:13px;gap:5px}
+.price{font-weight:bold;font-size:16px}
+.add-btn{background:var(--red);color:white;padding:9px 12px;border-radius:6px;font-weight:bold;font-size:12px}
+.add-btn:hover{background:#c92532}
+
+.promo{background:var(--light)}
+.section-heading{margin-bottom:25px}
+.section-heading h2{font-size:28px;margin-bottom:8px}
+.section-heading p{color:var(--gray)}
+.promo-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.promo-card{background:white;border-radius:13px;padding:30px;min-height:175px}
+.promo-card h3{font-size:23px;margin-bottom:12px}
+.promo-card p{color:var(--gray);line-height:1.6;margin-bottom:14px}
+.promo-card span{font-size:13px;font-weight:bold;color:var(--red)}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.step{padding:27px 20px;border:1px solid #eee;border-radius:12px;text-align:center}
+.step-icon{height:60px;width:60px;border-radius:50%;background:var(--light);display:grid;place-items:center;font-size:28px;margin:0 auto 15px}
+.step h3{margin-bottom:10px}
+.step p{font-size:14px;line-height:1.6;color:var(--gray)}
+
+footer{background:#191919;color:white;padding:40px 7% 22px}
+.footer-content{display:flex;justify-content:space-between;gap:25px;flex-wrap:wrap;margin-bottom:30px}
+.footer-brand h2{color:#ff5966;font-size:29px;margin-bottom:10px}
+.footer-brand p{color:#aaa;max-width:280px;line-height:1.6}
+.footer-links h3{margin-bottom:14px}
+.footer-links a{display:block;text-decoration:none;color:#aaa;font-size:14px;margin-bottom:11px}
+.footer-links a:hover{color:white}
+.copyright{text-align:center;border-top:1px solid #393939;padding-top:19px;color:#999;font-size:13px}
+
+/* CART DRAWER */
+.drawer-overlay{position:fixed;inset:0;background:#0008;z-index:40;opacity:0;visibility:hidden;transition:.25s}
+.drawer-overlay.active{opacity:1;visibility:visible}
+.cart-drawer{
+position:fixed;right:-450px;top:0;height:100%;width:min(420px,100%);
+background:white;z-index:50;transition:.3s;display:flex;flex-direction:column;
+box-shadow:-5px 0 25px #00000012
+}
+.cart-drawer.active{right:0}
+.cart-header{padding:22px;border-bottom:1px solid #eee;display:flex;align-items:center;justify-content:space-between}
+.cart-header h2{font-size:22px}
+.close-cart{background:#f4f4f4;width:34px;height:34px;border-radius:50%;font-size:22px}
+.cart-items{padding:15px 20px;overflow-y:auto;flex:1}
+.empty-cart{text-align:center;padding:65px 15px;color:var(--gray)}
+.empty-cart .empty-icon{font-size:55px;margin-bottom:15px}
+.empty-cart h3{color:#333;margin-bottom:8px}
+.cart-item{display:flex;gap:12px;padding:14px 0;border-bottom:1px solid #eee}
+.cart-item img{width:83px;height:83px;object-fit:cover;border-radius:9px;background:#fff0f0}
+.cart-item-info{flex:1;min-width:0}
+.cart-item-info h4{font-size:14px;margin:4px 0 7px}
+.cart-item-info p{font-size:14px;color:var(--red);font-weight:bold}
+.cart-controls{display:flex;align-items:center;gap:12px;margin-top:10px}
+.qty-btn{height:26px;width:27px;background:#fff0f0;color:var(--red);border-radius:5px;font-weight:bold;font-size:17px}
+.qty-number{font-size:13px;font-weight:bold}
+.remove-btn{margin-left:auto;background:none;color:#888;font-size:12px;text-decoration:underline}
+.cart-footer{padding:20px;border-top:1px solid #eee;box-shadow:0 -3px 15px #00000008}
+.bill-row{display:flex;justify-content:space-between;margin-bottom:12px;font-size:14px;color:#555}
+.bill-total{font-size:18px;font-weight:bold;color:#222;padding-top:13px;border-top:1px dashed #ddd;margin-top:8px}
+.checkout-btn{width:100%;padding:15px;background:var(--red);color:white;border-radius:8px;font-weight:bold;font-size:15px;margin-top:10px}
+.checkout-btn:disabled{opacity:.5;cursor:not-allowed}
+
+/* TOAST */
+.toast{position:fixed;bottom:25px;left:50%;transform:translate(-50%,100px);opacity:0;background:#242424;color:white;padding:14px 23px;border-radius:8px;z-index:100;font-size:14px;transition:.3s;box-shadow:0 5px 20px #0003}
+.toast.show{transform:translate(-50%,0);opacity:1}
+
+/* LOGIN SIGNUP */
+.modal-overlay{display:none;position:fixed;inset:0;background:#0009;z-index:80;justify-content:center;align-items:center;padding:15px}
+.modal-overlay.active{display:flex}
+.modal{background:white;padding:32px;border-radius:13px;width:100%;max-width:420px;position:relative}
+.close-modal{position:absolute;right:16px;top:12px;background:none;font-size:25px;color:#777}
+.modal h2{font-size:26px;margin-bottom:8px}
+.modal-subtitle{color:var(--gray);font-size:14px;margin-bottom:22px}
+.modal input{width:100%;padding:13px;border:1px solid #ddd;border-radius:7px;margin-bottom:14px;outline:none;font-size:14px}
+.modal input:focus{border-color:var(--red)}
+.modal-submit{width:100%;padding:14px;border-radius:7px;background:var(--red);color:white;font-weight:bold}
+#message{text-align:center;font-size:13px;margin-top:12px;color:var(--red)}
+.switch-auth{text-align:center;color:#666;font-size:14px;margin-top:18px}
+.switch-auth span:last-child{color:var(--red);font-weight:bold;cursor:pointer}
+
+@media(max-width:1000px){.food-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:650px){
+header{height:auto;min-height:70px;padding:13px 4%;flex-wrap:wrap;gap:12px}
+.logo{font-size:25px}
+nav{order:3;width:100%;justify-content:center;gap:17px}
+nav a{font-size:13px}
+.header-right{gap:7px}
+.login-btn,.signup-btn{padding:9px 10px;font-size:12px}
+.cart-button{padding:9px 11px;font-size:12px}
+.hero{min-height:370px;padding:45px 7%}
+.hero p{font-size:16px}
+section{padding:38px 5%}
+.food-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.food-card img{height:125px}
+.food-info{padding:10px}
+.food-info h3{font-size:14px}
+.add-btn{padding:8px 9px;font-size:11px}
+.category-heading h2{font-size:22px}
+.promo-grid,.steps{grid-template-columns:1fr}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<div class="logo">foodie.</div>
+<nav>
+<a href="#home">Home</a>
+<a href="#pizza">Food</a>
+<a href="#offers">Offers</a>
+<a href="#about">About</a>
+</nav>
+<div class="header-right" id="authButtons">
+<button class="login-btn" onclick="openAuth('login')">Log in</button>
+<button class="signup-btn" onclick="openAuth('signup')">Sign up</button>
+<button class="cart-button" onclick="openCart()">🛒 Cart <span class="cart-count" id="cartCount">0</span></button>
+</div>
+</header>
+
+<main>
+<div class="hero" id="home">
+<div class="hero-content">
+<h1>Good food.<br><span>Good mood.</span></h1>
+<p>Discover delicious food, explore amazing flavours and make every meal a memorable experience.</p>
+<button class="hero-btn" onclick="document.getElementById('pizza').scrollIntoView({behavior:'smooth'})">Explore Food</button>
+</div>
+</div>
+
+<div id="foodCategories"></div>
+
+<section class="promo" id="offers">
+<div class="section-heading">
+<h2>Something special for you</h2>
+<p>Enjoy great food and exciting experiences.</p>
+</div>
+<div class="promo-grid">
+<div class="promo-card">
+<h3>Every meal is a celebration!</h3>
+<p>Discover different cuisines and enjoy your favourite flavours.</p>
+<span>GOOD FOOD, GOOD TIMES</span>
+</div>
+<div class="promo-card">
+<h3>Food brings people together.</h3>
+<p>Share memorable meals and create moments worth remembering.</p>
+<span>MADE FOR FOOD LOVERS</span>
+</div>
+</div>
+</section>
+
+<section id="about">
+<div class="section-heading">
+<h2>How it works</h2>
+<p>A simple experience made for food lovers.</p>
+</div>
+<div class="steps">
+<div class="step"><div class="step-icon">🍽️</div><h3>Explore</h3><p>Discover different food categories and cuisines.</p></div>
+<div class="step"><div class="step-icon">🛒</div><h3>Add to Cart</h3><p>Select your favourite food and add it to your cart.</p></div>
+<div class="step"><div class="step-icon">🎉</div><h3>Enjoy</h3><p>Complete your demo checkout and enjoy the experience.</p></div>
+</div>
+</section>
+</main>
+
+<footer>
+<div class="footer-content">
+<div class="footer-brand"><h2>foodie.</h2><p>Bringing food lovers closer to the flavours they love.</p></div>
+<div class="footer-links"><h3>Explore</h3><a href="#home">Home</a><a href="#pizza">Food</a><a href="#offers">Offers</a></div>
+<div class="footer-links"><h3>Account</h3><a href="#" onclick="openAuth('login');return false">Log in</a><a href="#" onclick="openAuth('signup');return false">Sign up</a></div>
+<div class="footer-links"><h3>Contact</h3><a href="mailto:hello@example.com">Email us</a><a href="#about">About us</a></div>
+</div>
+<div class="copyright">© 2026 Foodie. All rights reserved. Demo website.</div>
+</footer>
+
+<!-- CART DRAWER -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeCart()"></div>
+<aside class="cart-drawer" id="cartDrawer">
+<div class="cart-header">
+<h2>🛒 Your Cart</h2>
+<button class="close-cart" onclick="closeCart()">×</button>
+</div>
+<div class="cart-items" id="cartItems"></div>
+<div class="cart-footer">
+<div class="bill-row"><span>Subtotal</span><span id="subtotal">₹0</span></div>
+<div class="bill-row"><span>Delivery fee</span><span id="deliveryFee">₹30</span></div>
+<div class="bill-row bill-total"><span>Total</span><span id="grandTotal">₹0</span></div>
+<button class="checkout-btn" id="checkoutBtn" onclick="checkout()">Proceed to Checkout</button>
+</div>
+</aside>
+
+<div class="toast" id="toast"></div>
+
+<!-- AUTH MODAL -->
+<div class="modal-overlay" id="authModal">
+<div class="modal">
+<button class="close-modal" onclick="closeAuth()">×</button>
+<h2 id="modalTitle">Welcome back!</h2>
+<p class="modal-subtitle" id="modalSubtitle">Log in to your account.</p>
+<form id="authForm">
+<input type="text" id="fullName" placeholder="Full name" style="display:none">
+<input type="email" id="email" placeholder="Email address" required>
+<input type="password" id="password" placeholder="Password (minimum 6 characters)" minlength="6" required>
+<button type="submit" class="modal-submit" id="submitText">Log in</button>
+</form>
+<p id="message"></p>
+<div class="switch-auth">
+<span id="switchText">Don't have an account?</span>
+<span onclick="switchAuth()" id="switchAction"> Sign up</span>
+</div>
+</div>
+</div>
+
+<script>
+const categories = [
+{name:"Pizza",id:"pizza",items:[
+["Margherita Pizza","Classic cheese and tomato",249,"https://images.unsplash.com/photo-1579751626657-72bc17010498?w=600"],
+["Farmhouse Pizza","Loaded with fresh vegetables",299,"https://images.unsplash.com/photo-1571407970349-bc81e7e96d47?w=600"],
+["Pepperoni Pizza","Cheesy pepperoni favourite",349,"https://images.unsplash.com/photo-1628840042765-356cda07504e?w=600"],
+["Cheese Burst Pizza","Extra cheesy indulgence",279,"https://images.unsplash.com/photo-1513104890138-7c749659a591?w=600"],
+["Veggie Delight Pizza","Fresh and colourful toppings",229,"https://images.unsplash.com/photo-1579751626657-72bc17010498?w=600"]
+]},
+{name:"Burgers",id:"burger",items:[
+["Classic Veg Burger","Crispy veggie patty with lettuce",129,"https://images.unsplash.com/photo-1520072959219-c595dc870360?w=600"],
+["Cheese Burger","A delicious cheesy burger",179,"https://images.unsplash.com/photo-1550547660-d9450f859349?w=600"],
+["Double Patty Burger","Two juicy burger patties",229,"https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600"],
+["Crispy Chicken Burger","Crunchy chicken with creamy sauce",199,"https://images.unsplash.com/photo-1606755962773-d324e0a13086?w=600"],
+["Spicy Burger","A flavourful spicy burger",169,"https://www.hot-dinners.com/images/stories/features/2022/newopenings/06-jun/sichuanfrynew.jpg"]
+]},
+{name:"Indian Food",id:"indian",items:[
+["Paneer Butter Masala","Creamy paneer curry",249,"https://images.unsplash.com/photo-1631452180519-c014fe946bc7?w=600"],
+["Chole Bhature","Punjabi classic favourite",149,"https://images.unsplash.com/photo-1626132647523-66f5bf380027?w=600"],
+["Dal Makhani","Rich and creamy lentils",199,"https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=600"],
+["Butter Chicken","Creamy tomato chicken curry",299,"https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=600"],
+["Masala Dosa","Crispy South Indian delight",119,"https://images.unsplash.com/photo-1668236543090-82eba5ee5976?w=600"]
+]},
+{name:"Noodles",id:"noodles",items:[
+["Hakka Noodles","Classic stir-fried noodles",159,"https://images.unsplash.com/photo-1585032226651-759b368d7246?w=600"],
+["Chow Mein","Delicious Chinese-style noodles",169,"https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=600"],
+["Schezwan Noodles","Spicy and flavourful noodles",179,"https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=600"],
+["Veg Noodles","Fresh vegetables and noodles",149,"https://images.unsplash.com/photo-1585032226651-759b368d7246?w=600"],
+["Chicken Noodles","Noodles with chicken",199,"https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=600"]
+]},
+{name:"Desserts",id:"dessert",items:[
+["Chocolate Brownie","Rich chocolate brownie",119,"https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=600"],
+["Ice Cream","Cold and creamy treat",99,"https://images.unsplash.com/photo-1560008581-09826d1de69e?w=600"],
+["Chocolate Cake","Soft chocolate cake",149,"https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=600"],
+["Waffles","Golden crispy waffles",159,"https://images.unsplash.com/photo-1562376552-0d160a2f238d?w=600"],
+["Gulab Jamun","Traditional Indian sweet",89,"https://www.jmbbakers.com/tinified/gulab-jamun.png"]
+]}
+];
+
+const fallback = "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(
+'<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400"><rect width="100%" height="100%" fill="#fff0f0"/><text x="50%" y="50%" text-anchor="middle" font-family="Arial" font-size="28" fill="#e23744">Food image unavailable</text></svg>'
+);
+
+let cart=[];
+let currentMode="login";
+let toastTimer;
+
+try{
+const saved=JSON.parse(localStorage.getItem("foodieCart")||"[]");
+cart=Array.isArray(saved)?saved.filter(x=>x&&Number.isInteger(x.id)&&Number.isInteger(x.qty)&&x.qty>0):[];
+}catch{cart=[];}
+
+const allItems=categories.flatMap((category,categoryIndex)=>
+category.items.map((item,index)=>({
+id:categoryIndex*5+index+1,
+name:item[0],description:item[1],price:item[2],image:item[3],category:category.name
+}))
+);
+
+function renderCategories(){
+const container=document.getElementById("foodCategories");
+container.innerHTML=categories.map((category,categoryIndex)=>`
+<section class="category-section" id="${category.id}">
+<div class="category-heading">
+<h2>${category.name}</h2><span>5 ITEMS</span>
+</div>
+<div class="food-grid">
+${category.items.map((item,index)=>{
+const id=categoryIndex*5+index+1;
+return `
+<article class="food-card">
+<img src="${item[3]}" alt="${item[0]}" loading="lazy">
+<div class="food-info">
+<h3>${item[0]}</h3>
+<p>${item[1]}</p>
+<div class="food-bottom">
+<span class="price">₹${item[2]}</span>
+<button class="add-btn" onclick="addToCart(${id})">+ Add</button>
+</div>
+</div>
+</article>`;
+}).join("")}
+</div>
+</section>
+`).join("");
+
+container.querySelectorAll("img").forEach(img=>{
+img.onerror=function(){this.onerror=null;this.src=fallback;};
+});
+}
+
+function saveCart(){
+localStorage.setItem("foodieCart",JSON.stringify(cart));
+}
+
+function addToCart(id){
+const item=allItems.find(x=>x.id===id);
+if(!item)return;
+const existing=cart.find(x=>x.id===id);
+if(existing)existing.qty++;
+else cart.push({...item,qty:1});
+saveCart();
+renderCart();
+showToast(item.name+" added to cart!");
+}
+
+function changeQuantity(id,amount){
+const item=cart.find(x=>x.id===id);
+if(!item)return;
+item.qty+=amount;
+if(item.qty<=0)cart=cart.filter(x=>x.id!==id);
+saveCart();
+renderCart();
+}
+
+function removeItem(id){
+cart=cart.filter(x=>x.id!==id);
+saveCart();
+renderCart();
+showToast("Item removed from cart");
+}
+
+function renderCart(){
+const container=document.getElementById("cartItems");
+const count=cart.reduce((sum,item)=>sum+item.qty,0);
+document.getElementById("cartCount").textContent=count;
+
+if(cart.length===0){
+container.innerHTML=`<div class="empty-cart"><div class="empty-icon">🛒</div><h3>Your cart is empty</h3><p>Add some delicious food to get started!</p></div>`;
+}else{
+container.innerHTML=cart.map(item=>`
+<div class="cart-item">
+<img src="${item.image}" alt="${escapeHTML(item.name)}">
+<div class="cart-item-info">
+<h4>${escapeHTML(item.name)}</h4>
+<p>₹${item.price*item.qty}</p>
+<div class="cart-controls">
+<button class="qty-btn" onclick="changeQuantity(${item.id},-1)">−</button>
+<span class="qty-number">${item.qty}</span>
+<button class="qty-btn" onclick="changeQuantity(${item.id},1)">+</button>
+<button class="remove-btn" onclick="removeItem(${item.id})">Remove</button>
+</div>
+</div>
+</div>`).join("");
+
+container.querySelectorAll("img").forEach(img=>{
+img.onerror=function(){this.onerror=null;this.src=fallback;};
+});
+}
+
+const subtotal=cart.reduce((sum,item)=>sum+item.price*item.qty,0);
+const delivery=cart.length?30:0;
+document.getElementById("subtotal").textContent="₹"+subtotal;
+document.getElementById("deliveryFee").textContent="₹"+delivery;
+document.getElementById("grandTotal").textContent="₹"+(subtotal+delivery);
+document.getElementById("checkoutBtn").disabled=cart.length===0;
+}
+
+function openCart(){
+renderCart();
+document.getElementById("cartDrawer").classList.add("active");
+document.getElementById("drawerOverlay").classList.add("active");
+document.body.style.overflow="hidden";
+}
+
+function closeCart(){
+document.getElementById("cartDrawer").classList.remove("active");
+document.getElementById("drawerOverlay").classList.remove("active");
+document.body.style.overflow="";
+}
+
+function checkout(){
+if(cart.length===0)return;
+const total=cart.reduce((sum,item)=>sum+item.price*item.qty,0)+30;
+alert("Demo order placed successfully!\nYour total is ₹"+total+"\n\nThis is a frontend demonstration. No real payment was made.");
+cart=[];
+saveCart();
+renderCart();
+closeCart();
+showToast("Demo order placed successfully!");
+}
+
+function showToast(message){
+const toast=document.getElementById("toast");
+toast.textContent=message;
+toast.classList.add("show");
+clearTimeout(toastTimer);
+toastTimer=setTimeout(()=>toast.classList.remove("show"),2200);
+}
+
+/* LOGIN AND SIGNUP */
+function openAuth(mode){
+currentMode=mode;
+updateAuthUI();
+document.getElementById("authModal").classList.add("active");
+document.getElementById("message").textContent="";
+}
+
+function closeAuth(){
+document.getElementById("authModal").classList.remove("active");
+document.getElementById("authForm").reset();
+}
+
+function switchAuth(){
+currentMode=currentMode==="login"?"signup":"login";
+updateAuthUI();
+document.getElementById("message").textContent="";
+}
+
+function updateAuthUI(){
+const signup=currentMode==="signup";
+document.getElementById("modalTitle").textContent=signup?"Create account":"Welcome back!";
+document.getElementById("modalSubtitle").textContent=signup?"Join Foodie today.":"Log in to your account.";
+document.getElementById("fullName").style.display=signup?"block":"none";
+document.getElementById("fullName").required=signup;
+document.getElementById("submitText").textContent=signup?"Create account":"Log in";
+document.getElementById("switchText").textContent=signup?"Already have an account?":"Don't have an account?";
+document.getElementById("switchAction").textContent=signup?" Log in":" Sign up";
+}
+
+function getUsers(){
+try{
+const users=JSON.parse(localStorage.getItem("foodieUsers")||"[]");
+return Array.isArray(users)?users:[];
+}catch{return [];}
+}
+
+document.getElementById("authForm").addEventListener("submit",function(e){
+e.preventDefault();
+const name=document.getElementById("fullName").value.trim();
+const email=document.getElementById("email").value.trim().toLowerCase();
+const password=document.getElementById("password").value;
+const message=document.getElementById("message");
+let users=getUsers();
+
+if(currentMode==="signup"){
+if(!name){message.textContent="Please enter your name.";return;}
+if(users.some(user=>user.email===email)){message.textContent="Email already registered.";return;}
+users.push({name,email,password});
+localStorage.setItem("foodieUsers",JSON.stringify(users));
+message.style.color="green";
+message.textContent="Account created successfully!";
+setTimeout(()=>{
+currentMode="login";
+updateAuthUI();
+document.getElementById("authForm").reset();
+message.textContent="Please log in with your new account.";
+},800);
+}else{
+const user=users.find(user=>user.email===email&&user.password===password);
+if(!user){message.style.color="#e23744";message.textContent="Invalid email or password.";return;}
+localStorage.setItem("foodieCurrentUser",JSON.stringify({name:user.name,email:user.email}));
+message.style.color="green";
+message.textContent="Login successful!";
+setTimeout(()=>{closeAuth();updateHeader();},700);
+}
+});
+
+function escapeHTML(value){
+return String(value).replace(/[&<>"']/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[char]));
+}
+
+function updateHeader(){
+let user=null;
+try{user=JSON.parse(localStorage.getItem("foodieCurrentUser")||"null");}catch{}
+const buttons=document.getElementById("authButtons");
+const accountHTML=user
+?`<span style="font-weight:600;font-size:14px">Hi, ${escapeHTML(user.name)}</span><button class="login-btn" onclick="logout()">Log out</button>`
+:`<button class="login-btn" onclick="openAuth('login')">Log in</button><button class="signup-btn" onclick="openAuth('signup')">Sign up</button>`;
+buttons.innerHTML=accountHTML+`<button class="cart-button" onclick="openCart()">🛒 Cart <span class="cart-count" id="cartCount">0</span></button>`;
+renderCart();
+}
+
+function logout(){
+localStorage.removeItem("foodieCurrentUser");
+updateHeader();
+showToast("Logged out successfully");
+}
+
+document.getElementById("authModal").addEventListener("click",function(e){
+if(e.target===this)closeAuth();
+});
+
+document.addEventListener("keydown",function(e){
+if(e.key==="Escape"){closeCart();closeAuth();}
+});
+
+renderCategories();
+updateHeader();
+</script>
+</body>
+</html>
